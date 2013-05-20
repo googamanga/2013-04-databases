@@ -1,9 +1,19 @@
+
+DROP DATABASE IF EXISTS `chat`;
+
 CREATE DATABASE chat;
 
 USE chat;
 
-CREATE TABLE messages (
- /* Describe your table here.*/
+DROP TABLE IF EXISTS `Storage`;
+
+CREATE TABLE `Storage` (
+  `id` TINYINT NULL AUTO_INCREMENT DEFAULT NULL,
+  `username` VARCHAR(50),
+  `text` VARCHAR(255),
+  `roomname` VARCHAR(50),
+  `hax` VARCHAR(250),
+  PRIMARY KEY (`id`)
 );
 
 /* You can also create more tables, if you need them... */

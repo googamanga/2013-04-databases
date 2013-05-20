@@ -9,15 +9,15 @@ describe("Persistent Node Chat Server", function() {
 
   beforeEach(function() {
     dbConnection = mysql.createConnection({
-    /* TODO: Fill this out with your mysql username */
-      user: "",
+    /* : Fill this out with your mysql username */
+      user: "hackreactor",
     /* and password. */
-      password: "",
+      password: "plantlife",
       database: "chat"
     });
     dbConnection.connect();
 
-    var tablename = ""; // TODO: fill this out
+    var tablename = "Storage"; // : fill this out
 
     /* Empty the db table before each test so that multiple tests
      * (or repeated runs of the tests) won't screw each other up: */
@@ -38,9 +38,8 @@ describe("Persistent Node Chat Server", function() {
             function(error, response, body) {
               /* Now if we look in the database, we should find the
                * posted message there. */
-
-              var queryString = "";
-              var queryArgs = [];
+              var queryString = "SELECT * FROM 'Storage' username=? AND message=?";
+              var queryArgs = ['username','text'];
               /* TODO: Change the above queryString & queryArgs to match your schema design
                * The exact query string and query args to use
                * here depend on the schema you design, so I'll leave
