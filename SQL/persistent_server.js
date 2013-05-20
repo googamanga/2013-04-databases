@@ -1,7 +1,7 @@
 var url = require("url");
 var querystring = require("querystring");
 var http = require('http');
-var mysql = require('/opt/boxen/nodenv/versions/v0.8/lib/node_modules/mysql');
+var mysql = require('mysql');
 /* If the node mysql module is not found on your system, you may
  * need to do an "sudo npm install -g mysql". */
 
@@ -103,9 +103,10 @@ handleRequest = function(request, response) {
          // * See https://github.com/felixge/node-mysql for more details about
          // * using this module.*/
         var tablename = "Storage"; // : fill this out
-        dbConnection.query("INSERT INTO posts SET ?" + tablename, data, function(err, result){
+        dbConnection.query("INSERT INTO " + tablename + " SET ?", data, function(err, result){
           returnCode = 201;
           console.log('result', result);
+          console.log('err', err);
           dbConnection.end();
 
 
