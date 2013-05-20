@@ -1,4 +1,5 @@
 var url = require("url");
+var querystring = require("querystring");
 var http = require('http');
 var mysql = require('/opt/boxen/nodenv/versions/v0.8/lib/node_modules/mysql');
 /* If the node mysql module is not found on your system, you may
@@ -12,17 +13,6 @@ var dbConnection = mysql.createConnection({
   password: "plantlife",
   database: "chat"
 });
-
-dbConnection.connect();
-/* Now you can make queries to the Mysql database using the
- * dbConnection.query() method.
- * See https://github.com/felixge/node-mysql for more details about
- * using this module.*/
-
-/* You already know how to create an http server from the previous
- * assignment; you can re-use most of that code here. */
-
-dbConnection.end();
 
 var storage = {
   messages: {
@@ -93,16 +83,34 @@ handleRequest = function(request, response) {
     if(!storage[roomName]) {storage[roomName] = {results: []};}
     if(request.method === 'GET'){
       returnCode = 200;
-      body = JSON.stringify(storage[roomName]);
+      body = "";
     } else if(request.method === 'POST'){
-      returnCode = 201;
       var fullBody = '';
       request.on('data', function(chunk) {
         fullBody += chunk;
       });
       request.on('end', function() {
-        var data = JSON.parse(fullBody);
-        storage[roomName].results.unshift(data);
+        console.log("fullbody:",fullBody);
+        var data = querystring.parse(fullBody);
+        console.log('data', data);
+        //storage[roomName].results.unshift(data);
+        //open the connection to db
+        //insert data from request into db
+        //clsoe db
+        //send response
+
+        dbConnection.connect();
+         // * See https://github.com/felixge/node-mysql for more details about
+         // * using this module.*/
+        var tablename = "Storage"; // : fill this out
+        dbConnection.query("INSERT INTO posts SET ?" + tablename, data, function(err, result){
+          returnCode = 201;
+          console.log('result', result);
+          dbConnection.end();
+
+
+        });
+
       });
     } else if(request.method === 'OPTIONS'){
       returnCode = 200;
@@ -121,6 +129,7 @@ handleRequest = function(request, response) {
 var port = 8080;
 var ip = "127.0.0.1";
 var server = http.createServer(handleRequest);
+
 console.log("Listening on http://" + ip + ":" + port);
 server.listen(port, ip);
 

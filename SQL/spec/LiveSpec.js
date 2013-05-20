@@ -1,7 +1,7 @@
 /* You'll need to have MySQL running and your Node server running
  * for these tests to pass. */
 
-var mysql = require('mysql');
+var mysql = require('/opt/boxen/nodenv/versions/v0.8/lib/node_modules/mysql');
 var request = require("request"); // You might need to npm install the request module!
 
 describe("Persistent Node Chat Server", function() {
