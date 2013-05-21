@@ -31,8 +31,7 @@ handleRequest = function(request, response) {
       pathNameArray = (url_parts.pathname).split('/'),
       roomName = pathNameArray[pathNameArray.length-1],
       query = url_parts.query,
-      returnCode = 404,
-      body = 'hello worlds';
+      returnCode = 404;
   //check if room exists
   console.log(request.url);
   if (request.url === '/index.html' || request.url === '/') {
@@ -80,16 +79,27 @@ handleRequest = function(request, response) {
     return;
   }
   if (pathNameArray[1] === 'classes') {
-    if(!storage[roomName]) {storage[roomName] = {results: []};}
     if(request.method === 'GET'){
-      returnCode = 200;
-      body = "";
+      dbConnection.connect();
+      var queryString = "SELECT * FROM Storage";
+      return dbConnection.query( queryString,// queryArgs,
+          function(err, results, fields) {
+          console.log('server side results:', results);
+          //when client is asking for room, then return all messages from database where room is a match
+          returnCode = 200;
+          defaultCorsHeaders["Content-Type"] = "application/json";
+          response.writeHead(returnCode, defaultCorsHeaders);
+          console.log('error:', err);
+          dbConnection.end();
+          response.end(JSON.stringify(results));
+        }
+      );
     } else if(request.method === 'POST'){
       var fullBody = '';
       request.on('data', function(chunk) {
         fullBody += chunk;
       });
-      request.on('end', function() {
+      return request.on('end', function() {
         console.log("fullbody:",fullBody);
         var data = querystring.parse(fullBody);
         console.log('data', data);
@@ -108,8 +118,7 @@ handleRequest = function(request, response) {
           console.log('result', result);
           console.log('err', err);
           dbConnection.end();
-
-
+          response.end();
         });
 
       });
