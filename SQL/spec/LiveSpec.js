@@ -2,33 +2,31 @@
  * for these tests to pass. */
 
 var mysql = require('mysql');
-var request = require("request"); // You might need to npm install the request module!
+var request = require("request");
 
 describe("Persistent Node Chat Server", function() {
   var dbConnection;
 
   beforeEach(function(done) {
     dbConnection = mysql.createConnection({
-    /* : Fill this out with your mysql username */
       user: "hackreactor",
-    /* and password. */
       password: "plantlife",
       database: "chat"
     });
     dbConnection.connect();
+    console.log('CONNECTION START');
 
-    var tablename = "Storage"; // : fill this out
-
-    /* Empty the db table before each test so that multiple tests
-     * (or repeated runs of the tests) won't screw each other up: */
+    var tablename = "Storage";
     dbConnection.query("DELETE FROM " + tablename, done);
   });
 
   afterEach(function() {
     dbConnection.end();
+    console.log('CONNECTION END');
   });
 
   it("Should insert posted messages to the DB", function(done) {
+    console.log('start first test', Date());
     request({method: "POST",
       uri: "http://127.0.0.1:8080/classes/room1",
       form:{username: "Valjean",
@@ -42,13 +40,15 @@ describe("Persistent Node Chat Server", function() {
           expect(results.length).toEqual(1);
           expect(results[0].username).toEqual("Valjean");
           expect(results[0].text).toEqual("In mercy's name, three days is all I need.");
+          console.log('end first test', Date());
           done();
         }
       );
     });
   });
 
-  xit("Should output all messages from the DB", function(done) {
+  it("Should output all messages from the DB", function(done) {
+    console.log('start second test', Date());
     var tablename = "Storage"; // : fill this out
     // Let's insert a message into the db
     var queryString = "INSERT INTO " + tablename + " SET ?";
@@ -62,9 +62,11 @@ describe("Persistent Node Chat Server", function() {
          * the message we just inserted: */
         request("http://127.0.0.1:8080/classes/room1",
           function(error, response, body) {
+            console.log("body: ",body);
             var messageLog = JSON.parse(body);
             expect(messageLog[0].username).toEqual("Javert");
             expect(messageLog[0].text).toEqual("Men like you can never change!");
+            console.log('finished second test', Date());
             done();
           });
       });

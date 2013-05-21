@@ -1,3 +1,4 @@
+var fs = require('fs');
 var url = require("url");
 var querystring = require("querystring");
 var http = require('http');
@@ -13,6 +14,7 @@ var dbConnection = mysql.createConnection({
   password: "plantlife",
   database: "chat"
 });
+dbConnection.connect();
 
 var storage = {
   messages: {
@@ -26,21 +28,17 @@ var defaultCorsHeaders = {
   "access-control-max-age": 10 //seconds
 };
 handleRequest = function(request, response) {
-  console.log('Serving awesome requests types '+ request.method + ' for url ' + request.url);
   var url_parts = url.parse(request.url, true),
       pathNameArray = (url_parts.pathname).split('/'),
       roomName = pathNameArray[pathNameArray.length-1],
       query = url_parts.query,
       returnCode = 404;
   //check if room exists
-  console.log(request.url);
   if (request.url === '/index.html' || request.url === '/') {
     fs.readFile('./app/index.html','utf8',function (err, data) {
-      // if (err) throw err;
       returnCode = 200;
       defaultCorsHeaders["Content-Type"] = "text/html";
       response.writeHead(returnCode, defaultCorsHeaders);
-      // response.write(data);
       response.end(data);
     });
     return;
@@ -49,7 +47,6 @@ handleRequest = function(request, response) {
     returnCode = 404;
     response.writeHead(returnCode, { "Content-Type" : "image/png" });
     response.end();
-    // fs.createReadStream('./app/' + request.url).pipe(response);
   }
   else if (request.url === '/assets/css/styles.css') {
     fs.readFile('./app/' + request.url,'utf8',function (err, data) {
@@ -80,17 +77,13 @@ handleRequest = function(request, response) {
   }
   if (pathNameArray[1] === 'classes') {
     if(request.method === 'GET'){
-      dbConnection.connect();
       var queryString = "SELECT * FROM Storage";
-      return dbConnection.query( queryString,// queryArgs,
+      return dbConnection.query( queryString,
           function(err, results, fields) {
-          console.log('server side results:', results);
           //when client is asking for room, then return all messages from database where room is a match
           returnCode = 200;
           defaultCorsHeaders["Content-Type"] = "application/json";
           response.writeHead(returnCode, defaultCorsHeaders);
-          console.log('error:', err);
-          dbConnection.end();
           response.end(JSON.stringify(results));
         }
       );
@@ -100,39 +93,24 @@ handleRequest = function(request, response) {
         fullBody += chunk;
       });
       return request.on('end', function() {
-        console.log("fullbody:",fullBody);
         var data = querystring.parse(fullBody);
-        console.log('data', data);
-        //storage[roomName].results.unshift(data);
-        //open the connection to db
-        //insert data from request into db
-        //clsoe db
-        //send response
-
-        dbConnection.connect();
          // * See https://github.com/felixge/node-mysql for more details about
          // * using this module.*/
-        var tablename = "Storage"; // : fill this out
+        var tablename = "Storage";
         dbConnection.query("INSERT INTO " + tablename + " SET ?", data, function(err, result){
           returnCode = 201;
-          console.log('result', result);
-          console.log('err', err);
-          dbConnection.end();
           response.end();
         });
 
       });
     } else if(request.method === 'OPTIONS'){
       returnCode = 200;
-      console.log('AAAHHHH REAL OPTIONS');
-    } else {
-      console.log('ERRRRORRRR i saw: ', request.method);
     }
     response.writeHead(returnCode, defaultCorsHeaders);
     response.end(body);
     return;
   }
-  response.end();
+  console.log('should not see this!');
 };
 
 
@@ -140,9 +118,4 @@ var port = 8080;
 var ip = "127.0.0.1";
 var server = http.createServer(handleRequest);
 
-console.log("Listening on http://" + ip + ":" + port);
 server.listen(port, ip);
-
-var stream = require('stream');
-var url = require("url");
-var fs = require('fs');
