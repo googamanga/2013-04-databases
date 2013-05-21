@@ -7,7 +7,7 @@ var request = require("request"); // You might need to npm install the request m
 describe("Persistent Node Chat Server", function() {
   var dbConnection;
 
-  beforeEach(function() {
+  beforeEach(function(done) {
     dbConnection = mysql.createConnection({
     /* : Fill this out with your mysql username */
       user: "hackreactor",
@@ -21,7 +21,7 @@ describe("Persistent Node Chat Server", function() {
 
     /* Empty the db table before each test so that multiple tests
      * (or repeated runs of the tests) won't screw each other up: */
-    dbConnection.query("DELETE FROM " + tablename);
+    dbConnection.query("DELETE FROM " + tablename, done);
   });
 
   afterEach(function() {
@@ -36,19 +36,20 @@ describe("Persistent Node Chat Server", function() {
             text: "In mercy's name, three days is all I need."}
     },
     function(error, response, body) {
+      //console.log(response);
       /* Now if we look in the database, we should find the
        * posted message there. */
       var queryString = "SELECT * FROM Storage WHERE username=? AND text=?";
-      var queryArgs = ["Valjean", "In mercy's name, three days is all I need."  ];
+      var queryArgs = ["Valjean", "In mercy's name, three days is all I need."];
       /* TODO: Change the above queryString & queryArgs to match your schema design
        * The exact query string and query args to use
        * here depend on the schema you design, so I'll leave
        * them up to you. */
       dbConnection.query( queryString, queryArgs,
         function(err, results, fields) {
-
           // Should have one result:
           console.log('results:', results, results.length);
+          console.log('err', err);
           expect(results.length).toEqual(1);
           expect(results[0].username).toEqual("Valjean");
           expect(results[0].text).toEqual("In mercy's name, three days is all I need.");
