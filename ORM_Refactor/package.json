@@ -1,0 +1,17 @@
+{
+  "name": "ORM_Refactor",
+  "version": "0.0.0",
+  "description": "ERROR: No README.md file found!",
+  "main": "orm-example.js",
+  "dependencies": {
+    "mysql": "~2.0.0-alpha8",
+    "sequelize": "~1.7.0-alpha1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "",
+  "license": "BSD"
+}

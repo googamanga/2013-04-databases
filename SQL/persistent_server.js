@@ -57,16 +57,7 @@ handleRequest = function(request, response) {
     });
     return;
   }
-  else if (request.url === '/assets/js/setup.js') {
-    fs.readFile('./app/' + request.url,'utf8',function (err, data) {
-      returnCode = 200;
-      defaultCorsHeaders["Content-Type"] = "text/javascript";
-      response.writeHead(returnCode, defaultCorsHeaders);
-      response.end(data);
-    });
-    return;
-  }
-  else if (request.url === '/assets/lib/jquery.js') {
+  else if (request.url === '/assets/js/setup.js' || request.url === '/assets/lib/jquery.js') {
     fs.readFile('./app/' + request.url,'utf8',function (err, data) {
       returnCode = 200;
       defaultCorsHeaders["Content-Type"] = "text/javascript";
@@ -81,10 +72,11 @@ handleRequest = function(request, response) {
       return dbConnection.query( queryString,
           function(err, results, fields) {
           //when client is asking for room, then return all messages from database where room is a match
+          var body = {'results': results};
           returnCode = 200;
           defaultCorsHeaders["Content-Type"] = "application/json";
           response.writeHead(returnCode, defaultCorsHeaders);
-          response.end(JSON.stringify(results));
+          response.end(JSON.stringify(body));
         }
       );
     } else if(request.method === 'POST'){
@@ -93,10 +85,17 @@ handleRequest = function(request, response) {
         fullBody += chunk;
       });
       return request.on('end', function() {
-        var data = querystring.parse(fullBody);
+        var data = JSON.parse(fullBody);
          // * See https://github.com/felixge/node-mysql for more details about
          // * using this module.*/
+         console.log('fullBody', data);
         var tablename = "Storage";
+
+
+        var queryString = "INSERT INTO " + tablename + " SET ?";
+        var queryArgs = {'username': "Javert", 'text': "Men like you can never change!"};
+
+
         dbConnection.query("INSERT INTO " + tablename + " SET ?", data, function(err, result){
           returnCode = 201;
           response.end();
@@ -107,7 +106,7 @@ handleRequest = function(request, response) {
       returnCode = 200;
     }
     response.writeHead(returnCode, defaultCorsHeaders);
-    response.end(body);
+    response.end();
     return;
   }
   console.log('should not see this!');

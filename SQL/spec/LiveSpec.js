@@ -16,7 +16,7 @@ describe("Persistent Node Chat Server", function() {
     dbConnection.connect();
     console.log('CONNECTION START');
 
-    var tablename = "Storage";
+    var tablename = "Messages";
     dbConnection.query("DELETE FROM " + tablename, done);
   });
 
@@ -33,11 +33,13 @@ describe("Persistent Node Chat Server", function() {
             text: "In mercy's name, three days is all I need."}
     },
     function(error, response, body) {
-      var queryString = "SELECT * FROM Storage WHERE username=? AND text=?";
+      var queryString = "SELECT * FROM Messages WHERE username=? AND text=?";
       var queryArgs = ["Valjean", "In mercy's name, three days is all I need."];
       dbConnection.query( queryString, queryArgs,
         function(err, results, fields) {
           expect(results.length).toEqual(1);
+          console.log('results', results[0]);
+          console.log('err',err);
           expect(results[0].username).toEqual("Valjean");
           expect(results[0].text).toEqual("In mercy's name, three days is all I need.");
           console.log('end first test', Date());
@@ -49,7 +51,7 @@ describe("Persistent Node Chat Server", function() {
 
   it("Should output all messages from the DB", function(done) {
     console.log('start second test', Date());
-    var tablename = "Storage"; // : fill this out
+    var tablename = "Messages"; // : fill this out
     // Let's insert a message into the db
     var queryString = "INSERT INTO " + tablename + " SET ?";
     var queryArgs = {'username': "Javert", 'text': "Men like you can never change!"};
@@ -62,10 +64,9 @@ describe("Persistent Node Chat Server", function() {
          * the message we just inserted: */
         request("http://127.0.0.1:8080/classes/room1",
           function(error, response, body) {
-            console.log("body: ",body);
             var messageLog = JSON.parse(body);
-            expect(messageLog[0].username).toEqual("Javert");
-            expect(messageLog[0].text).toEqual("Men like you can never change!");
+            expect(messageLog.results[0].username).toEqual("Javert");
+            expect(messageLog.results[0].text).toEqual("Men like you can never change!");
             console.log('finished second test', Date());
             done();
           });

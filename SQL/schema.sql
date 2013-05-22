@@ -8,10 +8,10 @@ USE chat;
 DROP TABLE IF EXISTS `Storage`;
 
 CREATE TABLE `Storage` (
-  `id` TINYINT NULL AUTO_INCREMENT DEFAULT NULL,
+  `id` TINYINT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(50),
   `text` VARCHAR(255),
-  `roomname` VARCHAR(50),
+  `roomname` VARCHAR(50) DEFAULT 'defaultRoom',
   `hax` VARCHAR(250),
   PRIMARY KEY (`id`)
 );
